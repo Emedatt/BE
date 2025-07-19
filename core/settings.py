@@ -49,6 +49,17 @@ INSTALLED_APPS = [
     'drf_yasg',
 
     'apps.accounts',
+    'apps.analytics',
+    'apps.appointments',
+    'apps.billing',
+    'apps.dashboard',
+    'apps.healthrecords',
+    'apps.labs',
+    'apps.notification',
+    'apps.prescriptions',
+    'apps.rating',
+    'apps.search',
+    'apps.telehealth',
 ]
 
 MIDDLEWARE = [
