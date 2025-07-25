@@ -1,0 +1,2 @@
+
+This document describes the actions programmed in the CI pipeline 
