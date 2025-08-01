@@ -32,20 +32,98 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'rest_framework',
+    'drf_yasg',
+    'corsheaders',
+
     'apps.accounts',
 ]
 
-# AUTH_USER_MODEL = 'accounts.User'
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'SessionAuth': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'X-CSRFTOKEN',
+            'description': 'Session based authentication with CSRF token'
+        }
+    },
+    'USE_SESSION_AUTH': True,
+    'LOGIN_URL': '/auth/login/',
+    'LOGOUT_URL': '/auth/logout/',
+    'DEFAULT_INFO': 'core.urls.swagger_info',
+    'OPERATIONS_SORTER': 'alpha',
+    'TAGS_SORTER': 'alpha',
+    'DOC_EXPANSION': 'none',
+    'DEEP_LINKING': True,
+    'SHOW_EXTENSIONS': True,
+    'DEFAULT_MODEL_RENDERING': 'example',
+    'DEFAULT_MODEL_DEPTH': 3,
+}
+
+AUTH_USER_MODEL = 'accounts.User'
+
+# Rest Framework Settings
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.UserRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'user': '10/minute',
+    }
+}
+
+# Email settings (update these in .env in production)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@e-medatt.com'
+
+# Frontend URL for email verification and password reset links
+FRONTEND_URL = 'http://localhost:3000'  # Update this in production
+
+# Session settings
+SESSION_COOKIE_AGE = 86400  # 24 hours
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True  # Only for development
+CORS_ALLOW_CREDENTIALS = True
+CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+CSRF_TRUSTED_ORIGINS = ['http://localhost:3000']  # Add your frontend URL here
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS middleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True  # Temporary for testing
+# CORS_ALLOW_CREDENTIALS = True
+# CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
 ROOT_URLCONF = 'core.urls'
 
