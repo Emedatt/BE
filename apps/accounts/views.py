@@ -365,7 +365,7 @@ class PasswordResetRequestView(generics.GenericAPIView):
             user=user,
             expires_at=timezone.now() + timedelta(hours=24)
         )
-        send_password_reset_email(user.email, token.token)
+        # send_password_reset_email(user.email, token.token)
         log_audit(user, "password_reset_requested", {"email": user.email})
         return Response({"message": "Password reset link sent"})
 

@@ -67,7 +67,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             user=user,
             expires_at=timezone.now() + timedelta(hours=24)
         )
-        send_verification_email(user.email, token.token)
+        # send_verification_email(user.email, token.token)
         log_audit(user, "register", {"email": user.email, "role": user.role})
         return user
 
