@@ -47,8 +47,20 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'drf_yasg',
+    'drf_spectacular',
 
     'apps.accounts',
+    'apps.analytics',
+    'apps.appointments',
+    'apps.billing',
+    'apps.dashboard',
+    'apps.healthrecords',
+    'apps.labs',
+    'apps.notification',
+    'apps.prescriptions',
+    'apps.rating',
+    'apps.search',
+    'apps.telehealth',
 ]
 
 MIDDLEWARE = [
@@ -101,7 +113,10 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+
 
 # JWT settings
 from datetime import timedelta
@@ -128,6 +143,20 @@ SWAGGER_SETTINGS = {
             'in': 'header'
         }
     }
+}
+
+# drf-spectacular configuration
+SPECTACULAR_SETTINGS = {
+    "TITLE": "E-MEDATT API",
+    "DESCRIPTION": "API for user authentication and profile management in the E-MEDATT telehealth platform.",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": True,
+    "SECURITY": [{"BearerAuth": []}],
+    "SCHEMA_PATH_PREFIX": "/api/v1/",
+    "SERVE_PERMISSIONS": ["rest_framework.permissions.AllowAny"],
+    # "ENUM_NAME_OVERRIDES": {
+    #     "UserRole": "apps.accounts.models.User.role",
+    # },
 }
 
 

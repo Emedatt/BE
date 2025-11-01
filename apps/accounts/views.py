@@ -11,6 +11,10 @@ from .serializers import UserLoginSerializer, UserSerializer, ProfileSerializer,
 from .models import User
 
 class LoginView(generics.GenericAPIView):
+    """
+    Authenticate user with email and password to obtain JWT tokens.
+    Returns access and refresh tokens along with user details.
+    """
     permission_classes = (AllowAny,)
     serializer_class = UserLoginSerializer
 

@@ -22,21 +22,21 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if attrs.get('password') != attrs.get('confirm_password'):
             raise serializers.ValidationError({"password": "Password fields didn't match."})
-        if User.objects.filter(email=attrs.get('email')).exists():
-            raise serializers.ValidationError({"email": "User with this email already exists."})
+        # The uniqueness of the email is already handled by the model's `unique=True`
+        # and DRF's default validators for ModelSerializer.
         return attrs
 
     def create(self, validated_data):
-        validated_data.pop('confirm_password')
-        user = User.objects.create(
+        # Remove confirm_password from validated_data as it's not needed for user creation
+        validated_data.pop('confirm_password', None)
+        # Use the custom user manager's `create_user` method for proper handling.
+        user = User.objects.create_user(
             email=validated_data['email'],
-            username=validated_data['email'],  # Using email as username
+            password=validated_data['password'],
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', ''),
-            role='admin'  # Setting default role
+            role='staff'  # SECURITY: Default to a less privileged role.
         )
-        user.set_password(validated_data['password'])
-        user.save()
         user.send_verification_email()
         return user
 
