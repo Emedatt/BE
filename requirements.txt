@@ -2,6 +2,7 @@ asgiref==3.8.1
 attrs==25.3.0
 certifi==2025.6.15
 charset-normalizer==3.4.2
+colorama==0.4.6
 dj-database-url==2.3.0
 Django==5.2.1
 django-cors-headers==4.7.0
@@ -13,13 +14,17 @@ drf-yasg==1.21.10
 gunicorn==23.0.0
 idna==3.10
 inflection==0.5.1
+iniconfig==2.1.0
 jsonschema==4.25.0
 jsonschema-specifications==2025.4.1
 packaging==25.0
 phonenumbers==9.0.5
 pillow==11.2.1
+pluggy==1.6.0
 psycopg2-binary==2.9.10
+Pygments==2.19.2
 PyJWT==2.9.0
+pytest==8.4.1
 python-dotenv==1.1.0
 pytz==2025.2
 PyYAML==6.0.2

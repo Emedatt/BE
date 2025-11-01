@@ -2,6 +2,8 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
+load_dotenv() 
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -159,6 +161,10 @@ SPECTACULAR_SETTINGS = {
     # },
 }
 
+# Postman configuration
+POSTMAN_API_KEY = os.getenv("POSTMAN_API_KEY")
+POSTMAN_WORKSPACE_ID = os.getenv("POSTMAN_WORKSPACE_ID", "your-workspace-id")
+POSTMAN_COLLECTION_ID = os.getenv("POSTMAN_COLLECTION_ID", "your-collection-id")
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

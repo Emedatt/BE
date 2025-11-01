@@ -58,7 +58,14 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         responses={200: ProfileSerializer}
     )
     def get_object(self):
-        return self.request.user.profile
+        user = self.request.user
+        # Access the profile using a reverse relation or create if not exists
+        profile = getattr(user, 'profile', None)
+        if profile is None:
+            # If profile does not exist, create one (optional, depending on your logic)
+            from .models import Profile  # Import here to avoid circular import
+            profile = Profile.objects.create(user=user)
+        return profile
 
 class LogoutView(generics.GenericAPIView):
     permission_classes = (AllowAny,)

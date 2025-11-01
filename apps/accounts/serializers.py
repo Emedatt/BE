@@ -30,6 +30,7 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # Use the custom user manager's `create_user` method for proper handling.
         user = User.objects.create_user(
             email=validated_data['email'],
+            username=validated_data['email'],  # Use email as username
             password=validated_data['password'],
             first_name=validated_data.get('first_name', ''),
             last_name=validated_data.get('last_name', ''),
@@ -63,7 +64,7 @@ class UserLoginSerializer(serializers.Serializer):
             'refresh': str(refresh),
             'access': str(access_token),
             'access_expires_at': datetime.fromtimestamp(
-                access_token['exp'], tz=timezone.utc
+                float(access_token['exp']), tz=timezone.utc
             ).isoformat()
         }
         attrs['user'] = user
