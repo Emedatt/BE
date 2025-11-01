@@ -27,6 +27,8 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         return attrs
 
     def create(self, validated_data):
+        # Remove confirm_password from validated_data as it's not needed for user creation
+        validated_data.pop('confirm_password', None)
         # Use the custom user manager's `create_user` method for proper handling.
         user = User.objects.create_user(
             email=validated_data['email'],
