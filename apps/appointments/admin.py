@@ -8,4 +8,3 @@ class AppointmentAdmin(admin.ModelAdmin):
     search_fields = ('patient__username', 'doctor__username')
 
 
-# Register your models here.
