@@ -47,8 +47,6 @@ class User(AbstractUser, BaseModel):
         full_name = super().get_full_name()
         return full_name if full_name else self.email
 
-    def get_primary_phone(self):
-        return self.phone_numbers.filter(is_primary=True).first()
 
     def send_verification_email(self):
         self.email_verification_token = uuid.uuid4()

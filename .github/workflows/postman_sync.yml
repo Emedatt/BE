@@ -1,0 +1,43 @@
+name: Sync Postman Documentation
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+jobs:
+  sync-postman:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Generate OpenAPI schema
+        run: python utils/scripts/generate_openapi.py
+      - name: Sync Postman collection
+        env:
+          POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
+          POSTMAN_WORKSPACE_ID: ${{ secrets.POSTMAN_WORKSPACE_ID }}
+          POSTMAN_AUTH_COLLECTION_ID: ${{ secrets.POSTMAN_AUTH_COLLECTION_ID }}
+        run: |
+          python -c "
+          import yaml
+          from utils.postman import PostmanAPI
+          with open('openapi.yaml', 'r') as f:
+              spec = yaml.safe_load(f)
+          postman = PostmanAPI()
+          postman.update_collection(spec)
+          "
+      - name: Upload OpenAPI artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: openapi-schema
+          path: openapi.yaml
