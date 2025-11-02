@@ -8,7 +8,7 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .serializers import UserLoginSerializer, UserSerializer, ProfileSerializer, PasswordResetRequestSerializer, PasswordResetConfirmSerializer, PasswordChangeSerializer, LogoutSerializer
-from .models import User
+from .models import User, Profile
 
 class LoginView(generics.GenericAPIView):
     """
@@ -63,7 +63,6 @@ class ProfileView(generics.RetrieveUpdateAPIView):
         profile = getattr(user, 'profile', None)
         if profile is None:
             # If profile does not exist, create one (optional, depending on your logic)
-            from .models import Profile  # Import here to avoid circular import
             profile = Profile.objects.create(user=user)
         return profile
 
