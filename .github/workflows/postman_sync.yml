@@ -21,7 +21,7 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
       - name: Generate OpenAPI schema
-        run: python scripts/generate_openapi.py
+        run: python utils/scripts/generate_openapi.py
       - name: Sync Postman collection
         env:
           POSTMAN_API_KEY: ${{ secrets.POSTMAN_API_KEY }}
