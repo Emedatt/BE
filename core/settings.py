@@ -125,8 +125,6 @@ MIDDLEWARE = [
 
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True  # Temporary for testing
-# CORS_ALLOW_CREDENTIALS = True
-# CORS_EXPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
 ROOT_URLCONF = 'core.urls'
 
