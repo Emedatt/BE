@@ -1,39 +1,27 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView
-from .views import LoginView, ProfileView, LogoutView, PasswordResetRequestView, PasswordResetConfirmView, PasswordChangeView
-from .onboardingviews import RegisterView
-from drf_yasg.utils import swagger_auto_schema
-from drf_yasg import openapi
+from .views import (
+    RegisterView, LoginView, LogoutView, PatientProfileView, DoctorProfileView,
+    AdminUserCreateView, EmailVerificationView, PasswordResetRequestView,
+    PasswordResetConfirmView, ChangePasswordView, DeleteAccountView,
+    SessionListView, SessionDeleteView, GetUserTokensView
+)
 
-# Swagger documentation for TokenRefreshView
-# decorated_refresh_view = swagger_auto_schema(
-#     operation_description="Get new access token using refresh token",
-#     responses={
-#         200: openapi.Response(
-#             description="Token refresh successful",
-#             schema=openapi.Schema(
-#                 type=openapi.TYPE_OBJECT,
-#                 properties={
-#                     'access': openapi.Schema(type=openapi.TYPE_STRING)
-#                 }
-#             )
-#         ),
-#         401: 'Invalid refresh token'
-#     }
-# )(TokenRefreshView.as_view())
+app_name = 'accounts'
 
 urlpatterns = [
-    path('onboarding/register/', RegisterView.as_view(), name='register'),
-    # path('onboarding/register/verify-email/', RegisterView.as_view(), name='verify_email'),
-    # path('onboarding/register/resend-verification/', RegisterView.as_view(), name='resend_verification'),
-    # path('onboarding/register/verify-email/<uuid:token>/', RegisterView.as_view(), name='verify_email_token'),
-
-    path('auth/login/', LoginView.as_view(), name='login'),
-    path('auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('auth/logout/', LogoutView.as_view(), name='logout'),
-    path('auth/password-reset/', PasswordResetRequestView.as_view(), name='password_reset_request'),
-    path('auth/password-reset-confirm/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-
-    path('profile/password-change/', PasswordChangeView.as_view(), name='password_change'),
-    path('profile/', ProfileView.as_view(), name='profile'),
+    # Development only endpoint - remove in production
+    path('dev/tokens/', GetUserTokensView.as_view(), name='get-user-tokens'),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('login/', LoginView.as_view(), name='login'),
+    path('logout/', LogoutView.as_view(), name='logout'),
+    path('profile/patient/', PatientProfileView.as_view(), name='patient-profile'),
+    path('profile/doctor/', DoctorProfileView.as_view(), name='doctor-profile'),
+    path('admin/create/', AdminUserCreateView.as_view(), name='admin-create'),
+    path('verify-email/<str:token>/', EmailVerificationView.as_view(), name='verify-email'),
+    path('password-reset/', PasswordResetRequestView.as_view(), name='password-reset'),
+    path('password-reset/confirm/<str:token>/', PasswordResetConfirmView.as_view(), name='password-reset-confirm'),
+    path('change-password/', ChangePasswordView.as_view(), name='change-password'),
+    path('delete-account/', DeleteAccountView.as_view(), name='delete-account'),
+    path('sessions/', SessionListView.as_view(), name='session-list'),
+    path('sessions/<str:id>/', SessionDeleteView.as_view(), name='session-delete'),
 ]

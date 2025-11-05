@@ -1,146 +1,115 @@
-from django.contrib.auth.models import AbstractUser, Permission
+from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
-from django.utils import timezone
-from phonenumber_field.modelfields import PhoneNumberField
+from django.utils.translation import gettext_lazy as _
 import uuid
 
-class BaseModel(models.Model):
-    """Abstract base model with common fields."""
+class UserManager(BaseUserManager):
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError(_('The Email field must be set'))
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        return self.create_user(email, password, **extra_fields)
+
+class User(AbstractUser):
+    username = None
+    email = models.EmailField(_('email address'), unique=True)
+    role = models.CharField(
+        max_length=20,
+        choices=[('patient', 'Patient'), ('doctor', 'Doctor'), ('admin', 'Admin')],
+        default='patient'
+    )
+    first_name = models.CharField(_('first name'), max_length=150)
+    last_name = models.CharField(_('last name'), max_length=150)
+    is_active = models.BooleanField(default=True)
+    is_email_verified = models.BooleanField(default=True) #untill smtp setup
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
-    class Meta:
-        abstract = True
-
-    def soft_delete(self):
-        self.is_deleted = True
-        self.save()
-
-class User(AbstractUser, BaseModel):
-    """Custom user model that extends the default Django user model."""
-    ROLE_CHOICES = (
-        ('admin', 'Admin'),
-        ('staff', 'Staff'),
-    )
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    email = models.EmailField(unique=True, db_index=True)
-    first_name = models.CharField(max_length=30, blank=True)
-    last_name = models.CharField(max_length=30, blank=True)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='admin')
-    address = models.TextField(blank=True)
-    email_verified = models.BooleanField(default=False)
-    email_verification_token = models.UUIDField(null=True, blank=True)
-    email_verification_sent_at = models.DateTimeField(null=True, blank=True)
+    objects = UserManager()
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = ['first_name', 'last_name', 'role']
 
     class Meta:
-        permissions = [
-            ("can_view_analytics", "Can view analytics"),
-            ("can_manage_users", "Can manage users"),
-            ("can_approve_content", "Can approve content"),
-        ]
+        db_table = 'auth_user'
+        verbose_name = _('user')
+        verbose_name_plural = _('users')
 
     def __str__(self):
-        full_name = super().get_full_name()
-        return full_name if full_name else self.email
+        return f"{self.email} ({self.get_role_display()})"
 
-
-    def send_verification_email(self):
-        self.email_verification_token = uuid.uuid4()
-        self.email_verification_sent_at = timezone.now()
-        self.save()
-        # Add email sending logic here
-
-class PhoneNumber(BaseModel):
-    """Model for storing multiple phone numbers per user."""
-    PHONE_TYPES = (
-        ('mobile', 'Mobile'),
-        ('home', 'Home'),
-        ('work', 'Work'),
-        ('other', 'Other'),
+class PatientProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='patient_profile')
+    date_of_birth = models.DateField(null=True, blank=True)
+    gender = models.CharField(
+        max_length=10,
+        choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')],
+        null=True,
+        blank=True
     )
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='phone_numbers', db_index=True)
-    number = PhoneNumberField()
-    type = models.CharField(max_length=10, choices=PHONE_TYPES, default='mobile')
-    is_primary = models.BooleanField(default=False)
-    
-    def save(self, *args, **kwargs):
-        if self.is_primary:
-            PhoneNumber.objects.filter(user=self.user, is_primary=True).update(is_primary=False)
-        super().save(*args, **kwargs)
+    phone_number = models.CharField(max_length=15, blank=True)
+    address = models.TextField(blank=True)
+    medical_history = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ['-is_primary', 'type']
-        constraints = [
-            models.UniqueConstraint(
-                fields=['user'],
-                condition=models.Q(is_primary=True),
-                name='unique_primary_phone'
-            )
-        ]
-
-class Profile(BaseModel):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    photo = models.ImageField(upload_to='profiles/', null=True, blank=True)
-    bio = models.TextField(max_length=500, blank=True)
+        db_table = 'patient_profile'
 
     def __str__(self):
         return f"Profile for {self.user.email}"
 
-    def update_user(self):
-        # This method can be extended to update user fields from profile if needed
-        # For example, if you add first_name, last_name to Profile model
-        # self.user.first_name = self.first_name
-        # self.user.last_name = self.last_name
-        # self.user.save()
-        pass
+class DoctorProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='doctor_profile')
+    license_number = models.CharField(max_length=50, unique=True)
+    specialty = models.CharField(max_length=100)
+    years_experience = models.PositiveIntegerField(default=0)
+    hospital_affiliation = models.CharField(max_length=200, blank=True)
+    phone_number = models.CharField(max_length=15, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-
-class Staff(BaseModel):
-    """Model representing a staff member."""
-    ROLE_CHOICES = (
-        ('manager', 'Manager'),
-        ('support', 'Support'),
-        ('analyst', 'Analyst'),
-    )
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='staff_profile')
-    # business = models.ForeignKey('business.Business', on_delete=models.CASCADE, db_index=True)
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='support')
+    class Meta:
+        db_table = 'doctor_profile'
 
     def __str__(self):
-        user_name = self.user.get_full_name() if self.user else "Unknown User"
-        return f"{user_name} - {self.role}"
-    
-    def save(self, *args, **kwargs):
-        if self.user:
-            if not self.user.is_staff:
-                self.user.is_staff = True
-            current_role = getattr(self.user, 'role', None)
-            if current_role != 'staff':
-                setattr(self.user, 'role', 'staff')
-            
-            # Assign role-based permissions
-            if self.role == 'manager':
-                self.user.user_permissions.add(
-                    Permission.objects.get(codename='can_manage_users'),
-                    Permission.objects.get(codename='can_approve_content')
-                )
-            elif self.role == 'analyst':
-                self.user.user_permissions.add(
-                    Permission.objects.get(codename='can_view_analytics')
-                )
-            
-            self.user.save()
-        super().save(*args, **kwargs)
+        return f"Dr. {self.user.first_name} {self.user.last_name} ({self.specialty})"
 
-    def delete(self, *args, **kwargs):
-        if self.user:
-            self.user.is_staff = False
-            self.user.save()
-        super().delete(*args, **kwargs)
+class EmailVerificationToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
 
+    class Meta:
+        db_table = 'email_verification_token'
+
+class PasswordResetToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.CharField(max_length=100, unique=True, default=uuid.uuid4)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+
+    class Meta:
+        db_table = 'password_reset_token'
+
+class AuditLog(models.Model):
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    action = models.CharField(max_length=100)
+    details = models.JSONField(default=dict)
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'audit_log'
+
+    def __str__(self):
+        return f"{self.action} by {self.user.email if self.user else 'Anonymous'}"

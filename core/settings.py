@@ -1,6 +1,9 @@
 import os
 from dotenv import load_dotenv
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -9,9 +12,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv()
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
+# XXX: Sensitive, move
+# #########################################
 # SECURITY WARNING: keep the secret key used in production secret!
 # SECRET_KEY = 'django-insecure-a8q3a+0ax0aw%jzvkwg%9i-n6%@)h94jsc%bx-nl@1yp_hnqra'
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-default-key')
@@ -37,6 +40,8 @@ CORS_ALLOW_ALL_ORIGINS = True
 import sys
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
+import sys
+sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -79,6 +84,9 @@ MIDDLEWARE = [
 
     "whitenoise.middleware.WhiteNoiseMiddleware",  # Add WhiteNoise middleware
 ]
+
+# CORS settings
+CORS_ALLOW_ALL_ORIGINS = True  # Temporary for testing
 
 ROOT_URLCONF = 'core.urls'
 
@@ -200,7 +208,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 
 # Internationalization
-# https://docs.djangoproject.com/en/5.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
@@ -212,7 +219,6 @@ USE_TZ = True
 
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 # STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = 'static/'
@@ -221,3 +227,16 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Email
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = os.environ.get('EMAIL_PORT', 587)
+EMAIL_USE_TLS = os.environ.get('EMAIL_USE_TLS', True)
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL')
+DEFAULT_TO_EMAIL = os.environ.get('DEFAULT_TO_EMAIL')
+
+FRONTEND_URL = os.environ.get("FRONTEND_URL")

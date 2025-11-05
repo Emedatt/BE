@@ -1,40 +1,55 @@
-
+"""
+URL configuration for core project.
+"""
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from rest_framework import permissions
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
-from rest_framework import permissions
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
-# from .views import IndexView
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="Emedatt API",
+        title="E-MEDATT API",
         default_version='v1',
-        description="API documentation for Emedatt Backend",
-        terms_of_service="https://www.emedatt.com/terms/",
-        contact=openapi.Contact(email="anyimossi.dev@gmail.com"),
-        license=openapi.License(name="Proprietary"),
+        description="""
+E-MEDATT API documentation for authentication and user management.
+
+## Authentication
+- Session-based authentication using CSRF tokens
+- Email verification required for new accounts
+- Password reset functionality available
+- Multi-factor authentication for admin users
+
+## Features
+- User registration (Patient/Doctor)
+- Email verification
+- Profile management
+- Password reset/change
+- Account deletion
+- Session management
+- Admin user creation (superuser only)
+""",
+        terms_of_service="https://www.e-medatt.com/terms/",
+        contact=openapi.Contact(email="support@e-medatt.com"),
+        license=openapi.License(name="Private License"),
     ),
     public=True,
     permission_classes=(permissions.AllowAny,),
 )
 
 urlpatterns = [
-    # path('', IndexView.as_view(), name='index'),
-    path("admin/", admin.site.urls),
-    path('api/v1/', include('apps.accounts.urls')),
+    path('admin/', admin.site.urls),
+    path('auth/', include('apps.accounts.urls')),
     
+    # Swagger URLs
+    re_path(r'^swagger(?P<format>\.json|\.yaml)$',
+        schema_view.without_ui(cache_timeout=0), name='schema-json'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0),
+        name='schema-swagger-ui'),
+    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0),
+        name='schema-redoc'),
     
-    # Swagger documentation (drf-yasg)
-    path('swagger<format>/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
-
-    # API schema (drf-spectacular)
-    path('schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('spectacular-redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-
+    # Root redirect to Swagger UI
+    path('', schema_view.with_ui('swagger', cache_timeout=0),
+        name='api-docs'),
 ]
-
