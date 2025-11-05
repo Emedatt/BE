@@ -2,12 +2,10 @@ from rest_framework import serializers
 from django.utils import timezone
 from django.contrib.auth.password_validation import validate_password
 from datetime import timedelta
-from django.core.exceptions import ValidationError
 import uuid
 
 from .models import User, PatientProfile, DoctorProfile, EmailVerificationToken, PasswordResetToken
 from .utils.security import log_audit
-from .utils.notifications import send_verification_email, send_password_reset_email
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:

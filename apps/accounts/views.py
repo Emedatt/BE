@@ -17,7 +17,6 @@ from .serializers import (
 from .serializers_swagger import TokenResponseSerializer
 from .permissions import IsPatient, IsDoctor, IsSuperuser
 from .utils.security import log_audit
-from .utils.notifications import send_verification_email, send_password_reset_email
 
 class GetUserTokensView(APIView):
     """Temporary endpoint for development to retrieve user tokens"""

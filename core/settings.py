@@ -24,6 +24,12 @@ DEBUG = os.getenv('DJANGO_DEBUG', 'True') == 'True'
 
 # ALLOWED_HOSTS = ['localhost', '127.0.0.1', os.getenv('DJANGO_ALLOWED_HOSTS', '')]
 ALLOWED_HOSTS = ['*']
+# if DEBUG:
+#     ALLOWED_HOSTS = ['localhost', '127.0.0.1']
+# else:
+#     # Read allowed hosts from environment variable, comma-separated
+#     hosts = os.environ.get('ALLOWED_HOSTS', '')
+#     ALLOWED_HOSTS = [h.strip() for h in hosts.split(',') if h.strip()]
 
 # CORS settings
 # CORS_ALLOWED_ORIGINS = [
@@ -33,8 +39,7 @@ ALLOWED_HOSTS = ['*']
 #     "http://127.0.0.1:5173",
     
 # ]
-CORS_ALLOW_ALL_ORIGINS = True
-
+CORS_ALLOW_ALL_ORIGINS = os.getenv('DJANGO_CORS_ALLOW_ALL_ORIGINS', 'False').lower() == 'true'
 
 # Application definition
 import sys
@@ -85,8 +90,6 @@ MIDDLEWARE = [
     "whitenoise.middleware.WhiteNoiseMiddleware",  # Add WhiteNoise middleware
 ]
 
-# CORS settings
-CORS_ALLOW_ALL_ORIGINS = True  # Temporary for testing
 
 ROOT_URLCONF = 'core.urls'
 
