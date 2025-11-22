@@ -3,6 +3,7 @@ from unittest.mock import patch
 from django.test import TestCase
 from utils.postman import PostmanAPI
 
+
 @pytest.mark.django_db
 class PostmanAPITests(TestCase):
     def setUp(self):
@@ -11,7 +12,9 @@ class PostmanAPITests(TestCase):
     @patch("requests.get")
     def test_get_collection(self, mock_get):
         mock_get.return_value.status_code = 200
-        mock_get.return_value.json.return_value = {"collection": {"info": {"name": "Test"}}}
+        mock_get.return_value.json.return_value = {
+            "collection": {"info": {"name": "Test"}}
+        }
         result = self.postman.get_collection()
         assert result["collection"]["info"]["name"] == "Test"
         mock_get.assert_called_once()

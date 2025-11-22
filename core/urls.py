@@ -1,6 +1,7 @@
 """
 URL configuration for core project.
 """
+
 from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import permissions
@@ -10,7 +11,7 @@ from drf_yasg import openapi
 schema_view = get_schema_view(
     openapi.Info(
         title="E-MEDATT API",
-        default_version='v1',
+        default_version="v1",
         description="""
 E-MEDATT API documentation for authentication and user management.
 
@@ -38,18 +39,20 @@ E-MEDATT API documentation for authentication and user management.
 )
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('auth/', include('apps.accounts.urls')),
-    
+    path("admin/", admin.site.urls),
+    path("auth/", include("apps.accounts.urls")),
     # Swagger URLs
-    re_path(r'^swagger(?P<format>\.json|\.yaml)$',
-        schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0),
-        name='schema-swagger-ui'),
-    path('redoc/', schema_view.with_ui('redoc', cache_timeout=0),
-        name='schema-redoc'),
-    
+    re_path(
+        r"^swagger(?P<format>\.json|\.yaml)$",
+        schema_view.without_ui(cache_timeout=0),
+        name="schema-json",
+    ),
+    path(
+        "swagger/",
+        schema_view.with_ui("swagger", cache_timeout=0),
+        name="schema-swagger-ui",
+    ),
+    path("redoc/", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"),
     # Root redirect to Swagger UI
-    path('', schema_view.with_ui('swagger', cache_timeout=0),
-        name='api-docs'),
+    path("", schema_view.with_ui("swagger", cache_timeout=0), name="api-docs"),
 ]

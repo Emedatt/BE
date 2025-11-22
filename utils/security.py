@@ -1,4 +1,3 @@
-
 class log_audit:
     """
     Placeholder class for audit logging functionality.
@@ -17,4 +16,5 @@ class log_audit:
         This class is referenced in commented-out code in `utils/postman.py`. Implementation is
         pending and should be completed before enabling audit logging features.
     """
+
     pass

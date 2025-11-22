@@ -1,6 +1,7 @@
 from django.db import models
 from appointments.models import Appointment
 
+
 class Consultation(models.Model):
     appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
     video_link = models.URLField(blank=True, null=True)
@@ -10,4 +11,3 @@ class Consultation(models.Model):
 
     def __str__(self):
         return f"Consultation for {self.appointment.patient.username} with {self.appointment.doctor.username}"
-

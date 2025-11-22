@@ -1,10 +1,12 @@
 import requests
 from django.conf import settings
+
 # from .security import log_audit
+
 
 class PostmanAPI:
     """Utility class for interacting with Postman API."""
-    
+
     def __init__(self):
         self.api_key = settings.POSTMAN_API_KEY
         self.workspace_id = settings.POSTMAN_WORKSPACE_ID
@@ -15,8 +17,7 @@ class PostmanAPI:
     def get_collection(self):
         """Retrieve the current collection."""
         response = requests.get(
-            f"{self.base_url}/collections/{self.collection_id}",
-            headers=self.headers
+            f"{self.base_url}/collections/{self.collection_id}", headers=self.headers
         )
         response.raise_for_status()
         return response.json()
@@ -27,15 +28,15 @@ class PostmanAPI:
             "collection": {
                 "info": {
                     "name": "E-MEDATT Authentication API",
-                    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+                    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
                 },
-                "item": openapi_spec.get("paths", {})
+                "item": openapi_spec.get("paths", {}),
             }
         }
         response = requests.put(
             f"{self.base_url}/collections/{self.collection_id}",
             headers=self.headers,
-            json=payload
+            json=payload,
         )
         response.raise_for_status()
         # log_audit(None, "postman_collection_updated", {"collection_id": self.collection_id})
@@ -43,14 +44,11 @@ class PostmanAPI:
 
     def import_openapi(self, openapi_spec: dict):
         """Import OpenAPI spec to create or update a collection."""
-        payload = {
-            "type": "openapi3",
-            "input": openapi_spec
-        }
+        payload = {"type": "openapi3", "input": openapi_spec}
         response = requests.post(
             f"{self.base_url}/collections?workspace={self.workspace_id}",
             headers=self.headers,
-            json=payload
+            json=payload,
         )
         response.raise_for_status()
         # log_audit(None, "postman_collection_imported", {"workspace_id": self.workspace_id})
