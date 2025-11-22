@@ -76,3 +76,10 @@
 
 The backend follows a **modular monolith** approach using Django and DRF, with each feature implemented as a Django app for maintainability.
 
+---
+
+## Developer Documentation
+
+- **[Getting Started Guide](DOCS/GETTING_STARTED.md)** - Setup instructions for developers
+- **[Settings Configuration](DOCS/SETTINGS_CONFIGURATION.md)** - Multi-environment configuration guide
+
